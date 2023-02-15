@@ -43,8 +43,9 @@ spray_chart <- function(data, x, y, events){
     scale_y_continuous(NULL, limits = c(-225, -25))
 }
 
+#print plot
 spray_chart(raffy_bip, raffy_bip$hc_x, raffy_bip$hc_y, raffy_bip$events) + geom_point()+
-  ggtitle("Rafael Devers '22 Season Spraychart") + theme(plot.title = element_text(hjust = 0.5))
+  ggtitle("Rafael Devers Spraychart (2022)") + theme(plot.title = element_text(hjust = 0.5))
 
 ```
 
@@ -56,8 +57,7 @@ guidelines <- tibble(
   label = c('Ground balls', 'Line drives', 'Flyballs')
 )
 
-crcblue <- "#2905a1"
-
+#create plot
 ev_plot <- raffy_bip %>%
   sample_n(nrow(.) / 2) %>%
   ggplot(aes(x = launch_speed, y = launch_angle,
@@ -68,7 +68,7 @@ ev_plot <- raffy_bip %>%
             aes(label = label, y = launch_angle - 4),
             color = 'black', hjust='left') + 
   geom_point(alpha = 0.8) + 
-  ggtitle("Devers '22 Season Estimated BA by Launch Angle") +
+  ggtitle("Devers' Estimated BA by Launch Angle (2022)") +
   theme(plot.title = element_text(hjust = 0.5)) + 
   scale_color_gradient("BA", low = 'red', high = 'blue') +
   scale_x_continuous("Exit Velocity (mph)",
@@ -76,7 +76,7 @@ ev_plot <- raffy_bip %>%
   scale_y_continuous("Launch Angle (degrees)",
                      breaks = seq(-75, 75, 25))
             
-
+#print plot
 ev_plot
 ```
 
@@ -87,9 +87,11 @@ people %>%
   filter(nameFirst=='Rafael', nameLast == 'Devers') %>%
   pull(playerID) -> raffy_id
 
+#pull batting data
 batting <- Lahman::Batting
 batting <- batting %>% replace_na(list(SF = 0, HBP = 0))
 
+#calculate birth year + SLG/OBP/OPS stats for each batter
 get_stats <- function(player.id){
   batting %>%
     filter(playerID == player.id) %>%
@@ -104,8 +106,10 @@ get_stats <- function(player.id){
     select(Age, SLG, OBP, OPS)
 }
 
+#get Devers stats
 raffyStats  <- get_stats(raffy_id)
 
+#fit ops curve
 fit_model <- function(d){
   fit <- lm(OPS ~ I(Age-30) + I((Age - 30)^2), data=d)
   b <- coef(fit)
@@ -117,6 +121,7 @@ fit_model <- function(d){
 F2 <- fit_model(raffyStats)
 coef(F2$fit)
 
+#plot devers ops career trajectory
 ggplot(raffyStats, aes(Age,OPS)) + geom_point() + 
   geom_smooth(method = 'lm', se=FALSE, size = 1.5,
               formula = y ~ poly(x, 2, raw=TRUE)) +
@@ -246,6 +251,7 @@ plot_trajectories <- function(player, n.similar = 5, ncol){
     theme(plot.title = element_text(hjust = 0.5))
 }
 
+#print plot
 plot_trajectories("Barry Bonds", 6, 2)
 
 ```
